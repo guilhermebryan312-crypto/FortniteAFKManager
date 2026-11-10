@@ -1,0 +1,40 @@
+
+name: Build Fortnite AFK Manager
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extrair projeto
+        run: |
+          mkdir source
+          unzip FortniteAFKManager-Android-Starter.zip -d source
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Instalar Android SDK
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Compilar APK
+        run: |
+          cd source/FortniteAFKManager
+          gradle assembleDebug
+
+      - name: Disponibilizar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fortnite-AFK-Manager
+          path: source/FortniteAFKManager/app/build/outputs/apk/debug/*.apk
